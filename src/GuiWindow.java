@@ -10,10 +10,11 @@ public class GuiWindow extends JFrame {
     private DefaultTableModel tableModel;
     private TrainingHistory trainingHistory;
     private TableModelListener tableModelListener;
+    private JComboBox<String> comboBox;
 
     // Konstruktor klasy MyWindow
-    public GuiWindow(ExerciseCategpry[] exerciseCategpries, TrainingHistory trainingHistory) {
-        this.trainingHistory = trainingHistory;
+    public GuiWindow(ExerciseCategpry[] exerciseCategpries, TrainingHistory traininggHistory) {
+        this.trainingHistory = traininggHistory;
 
         setTitle("GymMeasure");
         setSize(800, 400);
@@ -36,38 +37,15 @@ public class GuiWindow extends JFrame {
         for (int i = 0; i < exerciseCategpries.length; i++) {
             exercises[i] = exerciseCategpries[i].exerciseCategoryName;
         }
-        JComboBox<String> comboBox = new JComboBox<>(exercises);
+        comboBox = new JComboBox<>(exercises);
         Object[][] data = new Object[exerciseCategpries[0].exercisesNames.length][9];
         for (int i = 0; i < exerciseCategpries[0].exercisesNames.length; i++) {
             data[i][0] = exerciseCategpries[0].exercisesNames[i];
         }
-
+        
+        //Zmiana Kategori
         comboBox.addActionListener(e -> {
-            String selectedExercise = (String) comboBox.getSelectedItem();
-            System.out.println("Wybrane ćwiczenie: " + selectedExercise);
-
-            for (ExerciseCategpry category : exerciseCategpries) {
-                if (category.exerciseCategoryName.compareTo(selectedExercise) == 0) {
-                    // Aktualizacja danych tabeli
-                    Object[][] newData = new Object[category.exercisesNames.length][9];
-                    for (int i = 0; i < category.exercisesNames.length; i++) {
-                        newData[i][0] = category.exercisesNames[i];
-
-                        Object[] seriesData = trainingHistory.getCurrentTraining().getSeriesOf(category.exercisesNames[i], category.exerciseCategoryName);
-                        for(int x=1;x<9;x++)newData[i][x]=seriesData[x-1];
-                    }
-                    
-                    // Zastąpienie starych danych nowymi
-                    tableModel.setDataVector(newData, columnNames);
-                    TableColumn exerciseColumn = table.getColumnModel().getColumn(0);
-                    exerciseColumn.setPreferredWidth(200);
-
-                    for (int i = 1; i < table.getColumnCount(); i++) {
-                        TableColumn otherColumn = table.getColumnModel().getColumn(i);
-                        otherColumn.setPreferredWidth(50);
-                    }
-                }
-            }
+            onCategoryChange(exerciseCategpries, columnNames);
         });
 
         topPanel.add(comboBox, BorderLayout.WEST);
@@ -87,29 +65,31 @@ public class GuiWindow extends JFrame {
 
         // Tworzenie tabelki na środku z modelem tabeli
         tableModel = new DefaultTableModel(data, columnNames);
-        table = new JTable(tableModel);
 
         tableModelListener=new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
                 try{
-                    int row = e.getFirstRow();  // Uzyskanie wiersza, w którym zaszła zmiana
-                    int column = e.getColumn();  // Uzyskanie kolumny, w której zaszła zmiana
+                    if(e.getLastRow()==-1)return;
+                    int row = e.getFirstRow(); 
                     if (e.getType() == TableModelEvent.UPDATE) {
-                        Object changedValue = tableModel.getValueAt(row, column);  // Nowa wartość w komórce
-                        Object firstCellValue = tableModel.getValueAt(row, 0);  // Wartość z pierwszej kolumny tego wiersza
-
-                        // Wypisywanie informacji o zmianie
-                        System.out.println("Zmieniono wartość w wierszu: " + row + ", kolumna: " + column);
-                        System.out.println("Nowa wartość: " + changedValue);
-                        System.out.println("Wartość pierwszej komórki w tym wierszu: " + firstCellValue);
+                        Object firstCellValue = tableModel.getValueAt(row, 0);
+                        Object[] newValues = new Object[8];
+                        for(int i=0;i<8;i++){
+                            if(tableModel.getValueAt(row, i+1)!=null)
+                                newValues[i]= tableModel.getValueAt(row, i+1).toString();
+                            else 
+                                newValues[i] = null;
+                        }
+                        trainingHistory.getCurrentTraining().setSeriesOf(firstCellValue.toString(), newValues);
                     }
-                }catch(Exception ex){}
+                }catch(Exception ex){ex.printStackTrace();}
             }
         };
 
         tableModel.addTableModelListener(tableModelListener);
 
+        table = new JTable(tableModel);
         // Wyśrodkowanie tekstu w tabeli
         // DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         // centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);  // Ustawienie wyśrodkowania
@@ -135,6 +115,8 @@ public class GuiWindow extends JFrame {
         mainPanel.add(listScrollPane, BorderLayout.WEST); // Lista po lewej stronie
         mainPanel.add(tableScrollPane, BorderLayout.CENTER); // Tabela na środku
 
+        //Aby uniknąć martwego
+        onCategoryChange(exerciseCategpries, columnNames);
         // Dodawanie głównego panelu do okna
         add(mainPanel);
     }
@@ -142,5 +124,31 @@ public class GuiWindow extends JFrame {
     // Funkcja show(), aby wyświetlić okno
     public void showWindow() {
         setVisible(true);
+    }
+
+    private void onCategoryChange(ExerciseCategpry[] exerciseCategpries, String[] columnNames){
+        String selectedExercise = (String) comboBox.getSelectedItem();
+            for (ExerciseCategpry category : exerciseCategpries) {
+                if (category.exerciseCategoryName.compareTo(selectedExercise) == 0) {
+                    // Aktualizacja danych tabeli
+                    Object[][] newData = new Object[category.exercisesNames.length][9];
+                    for (int i = 0; i < category.exercisesNames.length; i++) {
+                        newData[i][0] = category.exercisesNames[i];
+
+                        Object[] seriesData = trainingHistory.getCurrentTraining().getSeriesOf(category.exercisesNames[i], category.exerciseCategoryName);
+                        for(int x=1;x<9;x++)newData[i][x]=seriesData[x-1];
+                    }
+                    
+                    // Zastąpienie starych danych nowymi
+                    tableModel.setDataVector(newData, columnNames);
+                    TableColumn exerciseColumn = table.getColumnModel().getColumn(0);
+                    exerciseColumn.setPreferredWidth(200);
+
+                    for (int i = 1; i < table.getColumnCount(); i++) {
+                        TableColumn otherColumn = table.getColumnModel().getColumn(i);
+                        otherColumn.setPreferredWidth(50);
+                    }
+                }
+            }
     }
 }

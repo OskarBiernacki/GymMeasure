@@ -28,9 +28,13 @@ public class SingleTraining{
         for(int i=0;i<series.size();i++)
             if(series.get(i).getExerciseName().compareTo(exerciseName)==0){
                 for(int x=0;x<seriesData.length;x+=2){
-                    series.get(i).weightInKg[x/2]=(double)seriesData[x];
-                    series.get(i).repetitions[x/2]=(int)seriesData[x+1];
+                    if(seriesData[x]!=null)
+                        series.get(i).weightInKg[x/2]=Double.parseDouble((String)seriesData[x]);
+                    if(seriesData[x+1]!=null)
+                        series.get(i).repetitions[x/2]=Integer.parseInt((String)seriesData[x+1]);
                 }
             }
     }
+
+
 }
