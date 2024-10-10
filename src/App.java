@@ -1,7 +1,7 @@
 public class App {
     public static void main(String[] args) throws Exception {
-        ExerciseCategpry[] categories = {
-            new ExerciseCategpry("Klata" , new String[]{
+        ExerciseCategory[] categories = {
+            new ExerciseCategory("Klata" , new String[]{
                 "płaska",
                 "pochyła (góra)",
                 "pochyła (dół)",
@@ -14,14 +14,14 @@ public class App {
                 "liny dół",
                 "dipy na klate",
             } ),
-            new ExerciseCategpry("Biceps" , new String[]{
+            new ExerciseCategory("Biceps" , new String[]{
                 "sztanga z podparcia",
                 "2 hantle na ławce",
                 "walenie kufli",
                 "sztanga stojąc",
                 "wyciskanie lin przed sobą",
             } ),
-            new ExerciseCategpry("Plecy" , new String[]{
+            new ExerciseCategory("Plecy" , new String[]{
                 "podciąganie bez supportu",
                 "podciąganie z suportem",
                 "ściąganie drążka na wyciągu pionowym siedząc",
@@ -31,7 +31,7 @@ public class App {
                 "wyciskanie sztangi",
                 "martwy ciąg",
             } ),
-            new ExerciseCategpry("Triceps" , new String[]{
+            new ExerciseCategory("Triceps" , new String[]{
                 "ciągnięcie jajec pod siebie przed sobą",
                 "ciągnięcie jajec przed siebie z za pleców",
                 "dipy na triceps",
@@ -40,7 +40,7 @@ public class App {
                 "wyciskanie 1 hantlem leżąc na ławce",
                 "maszyna na triceps",
             } ),
-            new ExerciseCategpry("Barki" , new String[]{
+            new ExerciseCategory("Barki" , new String[]{
                 "podnoszenie sztangi przed siebie z odwróconym chwytem",
                 "wznosy",
                 "Wyciskanie z hantlami na siedząco",
@@ -50,7 +50,7 @@ public class App {
                 "podnoszenie hantla leżąc na boku od boku do góry",
                 "sztanga przed siebie stojąc z odwróconym chwytem",
             } ),
-            new ExerciseCategpry("Nogi" , new String[]{
+            new ExerciseCategory("Nogi" , new String[]{
                 "przysiady",
                 "maszyna przysiady",
                 "maszyna wyprost",
