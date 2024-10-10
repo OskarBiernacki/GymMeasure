@@ -174,3 +174,4 @@ public class GuiWindow extends JFrame {
         UIManager.put("ScrollPane.background", Color.DARK_GRAY);
     }
 }
+////////cokolwiek
