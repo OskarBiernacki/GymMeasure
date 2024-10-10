@@ -4,6 +4,9 @@ public class SingleTraining{
     private int trainingNumber;
     private static int nextTrainingNumber=0;
     private ArrayList<SigleSeries> series = new ArrayList<>();
+    public ArrayList<SigleSeries> getSeries() {
+        return series;
+    }
     SingleTraining(){
         this.trainingNumber=nextTrainingNumber++;
     }

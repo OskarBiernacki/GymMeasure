@@ -4,6 +4,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GuiWindow extends JFrame {
     private JTable table;
@@ -11,8 +13,8 @@ public class GuiWindow extends JFrame {
     private TrainingHistory trainingHistory;
     private TableModelListener tableModelListener;
     private JComboBox<String> comboBox;
+    private JLabel weekText;
 
-    // Konstruktor klasy GuiWindow
     public GuiWindow(ExerciseCategory[] exerciseCategories, TrainingHistory trainingHistory) {
         this.trainingHistory = trainingHistory;
 
@@ -24,11 +26,9 @@ public class GuiWindow extends JFrame {
         // Ciemny motyw
         //setDarkTheme();
 
-        // Tworzenie głównego panelu
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
-        // Tworzenie panelu na przyciski
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
         JPanel topPanel = new JPanel();
@@ -46,27 +46,44 @@ public class GuiWindow extends JFrame {
             data[i][0] = exerciseCategories[0].exercisesNames[i];
         }
 
-        // Zmiana kategorii
         comboBox.addActionListener(e -> {
             onCategoryChange(exerciseCategories, columnNames);
         });
 
         topPanel.add(comboBox, BorderLayout.WEST);
 
-        // Tworzenie przycisków strzałek
         JButton leftArrowButton = new JButton("←");
         JButton rightArrowButton = new JButton("→");
+        weekText = new JLabel("Active Week: 0");
+        
+        leftArrowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                trainingHistory.previousTraining();
+                onCategoryChange(exerciseCategories, columnNames);
+                weekText.setText("Active Week: "+trainingHistory.getHistoryIndex());
+                trainingHistory.exportToJson();
+            }
+        });
 
-        // Dodawanie przycisków do panelu
+        rightArrowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                trainingHistory.nextTraining();
+                onCategoryChange(exerciseCategories, columnNames);
+                weekText.setText("Active Week: "+trainingHistory.getHistoryIndex());
+            }
+            
+        });
+
         buttonPanel.add(leftArrowButton);
         buttonPanel.add(rightArrowButton);
+        buttonPanel.add(weekText);
 
-        // Tworzenie listy po lewej stronie
         String[] items = {"Adrian", "Oskar", "Michał", "Obama"};
         JList<String> list = new JList<>(items);
         JScrollPane listScrollPane = new JScrollPane(list);
 
-        // Tworzenie tabelki na środku z modelem tabeli
         tableModel = new DefaultTableModel(data, columnNames);
 
         tableModelListener = new TableModelListener() {
@@ -96,35 +113,29 @@ public class GuiWindow extends JFrame {
 
         table = new JTable(tableModel);
 
-        // Zablokowanie przesuwania kolumn
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Ustawianie szerokości kolumn
-        TableColumn exerciseColumn = table.getColumnModel().getColumn(0); // Kolumna z ćwiczeniami
-        exerciseColumn.setPreferredWidth(200);  // Szersza kolumna
+        TableColumn exerciseColumn = table.getColumnModel().getColumn(0);
+        exerciseColumn.setPreferredWidth(200);
 
         for (int i = 1; i < table.getColumnCount(); i++) {
             TableColumn otherColumn = table.getColumnModel().getColumn(i);
-            otherColumn.setPreferredWidth(50);  // Węższe kolumny
+            otherColumn.setPreferredWidth(50);
         }
 
         JScrollPane tableScrollPane = new JScrollPane(table);
 
-        // Dodawanie elementów do głównego panelu
         topPanel.add(buttonPanel, BorderLayout.CENTER);
-        mainPanel.add(topPanel, BorderLayout.NORTH); // Panel z przyciskami na górze
-        mainPanel.add(listScrollPane, BorderLayout.WEST); // Lista po lewej stronie
-        mainPanel.add(tableScrollPane, BorderLayout.CENTER); // Tabela na środku
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(listScrollPane, BorderLayout.WEST);
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
 
-        // Aby uniknąć martwego stanu
         onCategoryChange(exerciseCategories, columnNames);
-        // Dodawanie głównego panelu do okna
         add(mainPanel);
         this.setBackground(Color.BLACK);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    // Funkcja show(), aby wyświetlić okno
     public void showWindow() {
         setVisible(true);
     }
@@ -133,7 +144,6 @@ public class GuiWindow extends JFrame {
         String selectedExercise = (String) comboBox.getSelectedItem();
         for (ExerciseCategory category : exerciseCategories) {
             if (category.exerciseCategoryName.compareTo(selectedExercise) == 0) {
-                // Aktualizacja danych tabeli
                 Object[][] newData = new Object[category.exercisesNames.length][9];
                 for (int i = 0; i < category.exercisesNames.length; i++) {
                     newData[i][0] = category.exercisesNames[i];
@@ -142,7 +152,6 @@ public class GuiWindow extends JFrame {
                     for (int x = 1; x < 9; x++) newData[i][x] = seriesData[x - 1];
                 }
 
-                // Zastąpienie starych danych nowymi
                 tableModel.setDataVector(newData, columnNames);
                 TableColumn exerciseColumn = table.getColumnModel().getColumn(0);
                 exerciseColumn.setPreferredWidth(200);
@@ -155,7 +164,7 @@ public class GuiWindow extends JFrame {
         }
     }
 
-    // Funkcja ustawiająca ciemny motyw
+
     @SuppressWarnings("unused")
     private void setDarkTheme() {
         // Kolory tła i tekstu
@@ -174,4 +183,3 @@ public class GuiWindow extends JFrame {
         UIManager.put("ScrollPane.background", Color.DARK_GRAY);
     }
 }
-////////cokolwiek
