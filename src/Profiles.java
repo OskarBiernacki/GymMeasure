@@ -1,4 +1,9 @@
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 public class Profiles {
     static private ArrayList<Profile> allProfiles = new ArrayList<>();
@@ -33,6 +38,20 @@ public class Profiles {
         allProfiles.add(new Profile("Adrian"));
         allProfiles.add(new Profile("Michu"));
     }
+
+    @SuppressWarnings("unchecked")
+    public static void saveAll(){
+        JSONObject output = new JSONObject();
+        for(int i=0;i<allProfiles.size();i++)
+            output.put(i, allProfiles.get(i).exportProfileToJSON());
+        
+        try{
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("save.json"), StandardCharsets.UTF_8)){
+                writer.write(output.toJSONString());
+                writer.close();
+            }
+        }catch(Exception ex){ex.printStackTrace();}
+    }
 }
 
 class Profile{
@@ -43,5 +62,14 @@ class Profile{
         this.profileName=name;
         this.trainingHistory=new TrainingHistory();
         trainingHistory.addEmptyTraining();
+    }
+
+    @SuppressWarnings("unchecked")
+    public JSONObject exportProfileToJSON(){
+        JSONObject output = new JSONObject();
+        output.put("profileName", profileName);
+        output.put("trainingHistory", trainingHistory.exportToJson());
+
+        return output;
     }
 }

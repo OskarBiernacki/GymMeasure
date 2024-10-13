@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -82,7 +84,7 @@ public class GuiWindow extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Profiles.getSelectedProfile().trainingHistory.exportToJson();
+                Profiles.saveAll();
             }
             
         });
@@ -92,6 +94,16 @@ public class GuiWindow extends JFrame {
         list = new JList<>(Profiles.getProfilesNames());
         JScrollPane listScrollPane = new JScrollPane(list);
 
+        list.addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                System.out.println(list.getSelectedValue());
+                Profiles.selectProfile(list.getSelectedValue());
+                onCategoryChange(exerciseCategories, columnNames);
+            }
+            
+        });
         tableModel = new DefaultTableModel(data, columnNames);
 
         tableModelListener = new TableModelListener() {
@@ -170,6 +182,7 @@ public class GuiWindow extends JFrame {
                 }
             }
         }
+        weekText.setText("Active Week: "+Profiles.getSelectedProfile().trainingHistory.getHistoryIndex());
     }
 
 
