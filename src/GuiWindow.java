@@ -10,14 +10,12 @@ import java.awt.event.ActionListener;
 public class GuiWindow extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
-    private TrainingHistory trainingHistory;
     private TableModelListener tableModelListener;
     private JComboBox<String> comboBox;
     private JLabel weekText;
+    private JList<String> list;
 
-    public GuiWindow(ExerciseCategory[] exerciseCategories, TrainingHistory trainingHistory) {
-        this.trainingHistory = trainingHistory;
-
+    public GuiWindow(ExerciseCategory[] exerciseCategories) {
         setTitle("GymMeasure");
         setSize(800, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,19 +57,18 @@ public class GuiWindow extends JFrame {
         leftArrowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                trainingHistory.previousTraining();
+                Profiles.getSelectedProfile().trainingHistory.previousTraining();
                 onCategoryChange(exerciseCategories, columnNames);
-                weekText.setText("Active Week: "+trainingHistory.getHistoryIndex());
-                trainingHistory.exportToJson();
+                weekText.setText("Active Week: "+Profiles.getSelectedProfile().trainingHistory.getHistoryIndex());
             }
         });
 
         rightArrowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                trainingHistory.nextTraining();
+                Profiles.getSelectedProfile().trainingHistory.nextTraining();
                 onCategoryChange(exerciseCategories, columnNames);
-                weekText.setText("Active Week: "+trainingHistory.getHistoryIndex());
+                weekText.setText("Active Week: "+Profiles.getSelectedProfile().trainingHistory.getHistoryIndex());
             }
             
         });
@@ -80,8 +77,19 @@ public class GuiWindow extends JFrame {
         buttonPanel.add(rightArrowButton);
         buttonPanel.add(weekText);
 
-        String[] items = {"Adrian", "Oskar", "Michał", "Obama"};
-        JList<String> list = new JList<>(items);
+        JButton saveTestButton = new JButton("Save Test");
+        saveTestButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Profiles.getSelectedProfile().trainingHistory.exportToJson();
+            }
+            
+        });
+
+        buttonPanel.add(saveTestButton);
+
+        list = new JList<>(Profiles.getProfilesNames());
         JScrollPane listScrollPane = new JScrollPane(list);
 
         tableModel = new DefaultTableModel(data, columnNames);
@@ -101,7 +109,7 @@ public class GuiWindow extends JFrame {
                             else
                                 newValues[i] = null;
                         }
-                        trainingHistory.getCurrentTraining().setSeriesOf(firstCellValue.toString(), newValues);
+                        Profiles.getSelectedProfile().trainingHistory.getCurrentTraining().setSeriesOf(firstCellValue.toString(), newValues);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -148,7 +156,7 @@ public class GuiWindow extends JFrame {
                 for (int i = 0; i < category.exercisesNames.length; i++) {
                     newData[i][0] = category.exercisesNames[i];
 
-                    Object[] seriesData = trainingHistory.getCurrentTraining().getSeriesOf(category.exercisesNames[i], category.exerciseCategoryName);
+                    Object[] seriesData = Profiles.getSelectedProfile().trainingHistory.getCurrentTraining().getSeriesOf(category.exercisesNames[i], category.exerciseCategoryName);
                     for (int x = 1; x < 9; x++) newData[i][x] = seriesData[x - 1];
                 }
 

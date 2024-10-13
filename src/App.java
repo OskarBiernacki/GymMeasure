@@ -59,8 +59,7 @@ public class App {
             } ),
         };
         
-        TrainingHistory trainingHistory = new TrainingHistory();
-        trainingHistory.addEmptyTraining();
-        new GuiWindow(categories,trainingHistory).showWindow();
+        Profiles.loadAllProviles();
+        new GuiWindow(categories).showWindow();
     }
 }

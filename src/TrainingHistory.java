@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import org.json.simple.JSONObject;
 
@@ -30,6 +31,7 @@ public class TrainingHistory {
         return trainingsHistory.get(selectedHistoryIndex);
     }
 
+    @SuppressWarnings("unchecked")
     public JSONObject exportToJson(){
         JSONObject trainingHistroyJson = new JSONObject();
         try{
@@ -46,7 +48,7 @@ public class TrainingHistory {
                 trainingHistroyJson.put(i, trainingJson);
             }
         }catch(Exception ex){ex.printStackTrace();}
-        System.out.println(trainingHistroyJson.toJSONString());
+        System.out.println("\u001B["+(new Random().nextInt(7)+30)+"m" +trainingHistroyJson.toJSONString() + "\u001B[0m");
         return trainingHistroyJson;
     }
 }
